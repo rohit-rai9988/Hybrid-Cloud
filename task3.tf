@@ -96,3 +96,54 @@ ingress {
     Name = "myFirewall"
   }
 }
+
+
+resource "aws_instance" "task3" {
+  ami           = "ami-0732b62d310b80e97"
+  instance_type = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.myFirewall.id]
+  subnet_id = aws_subnet.Public.id
+  key_name = "cloud"
+
+connection {
+ type      = "ssh"
+ user      = "ec2-user"
+ private_key = file("C:/Users/rohit.rai/Downloads/cloud.pem")
+ host = aws_instance.task3.public_ip
+  }
+
+provisioner "remote-exec" {
+ inline = [
+    
+        "sudo yum -y update",
+        "sudo yum -y install httpd",
+        "sudo systemctl enable httpd.service",
+	"sudo systemctl start httpd.service",
+	"sudo yum install wget -y",
+	"sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+	"sudo yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm",
+	"sudo yum-config-manager --disable remi-php54",
+	"sudo yum-config-manager --enable remi-php56",
+	"sudo yum install -y php php-mcrypt php-cli php-gd php-curl php-mysql php-ldap php-zip php-fileinfo",
+	"sudo systemctl restart httpd.service",
+	"sudo wget https://wordpress.org/latest.tar.gz",
+	"sudo tar -xvf latest.tar.gz",
+	"sudo rm -rf latest.tar.gz",
+	"sudo rm -rf /var/www/html/*",
+	"sudo mv wordpress/* /var/www/html/",
+	"sudo rm -rf wordpress",
+	"sudo chown -R apache:apache /var/www/html/",
+	"sudo chcon -t httpd_sys_rw_content_t /var/www/html/ -R",
+	"sudo sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config",
+	"sudo setenforce 0",
+	"sudo systemctl restart httpd.service",
+  ]
+ }
+
+tags = {
+ Name = "task3"
+  }
+
+}
+
+
