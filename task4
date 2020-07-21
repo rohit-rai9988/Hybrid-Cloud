@@ -131,7 +131,7 @@ ingress {
 
 
 resource "aws_instance" "task3" {
-  ami           = "ami-02b6d9703a69265e9"
+  ami           = "ami-0d6c336fc1df6d884"
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.myFirewall.id]
   subnet_id = aws_subnet.Public.id
@@ -206,7 +206,7 @@ tags = {
 }
 
 resource "aws_instance" "db" {
-  ami = "ami-02b6d9703a69265e9"
+  ami = "ami-0d6c336fc1df6d884"
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.mysc2.id]
   subnet_id = aws_subnet.Private.id
@@ -217,13 +217,4 @@ tags = {
 }
 output "instance_ip_addr" {
   value = aws_instance.db.private_ip
-}
-
-resource "aws_nat_gateway" "myngw" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.Public.id
-
-  tags = {
-    Name = "myngw"
-  }
 }
